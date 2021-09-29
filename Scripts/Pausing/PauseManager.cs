@@ -41,15 +41,22 @@ namespace Fossil
                 pauseOverlay.SetActive(true);
             }
             lowerTimeBoundModifier.value = 0;
-            audioMixer.GetFloat(muteParameterName, out float val);
-            previousParameterValue = val;
 
-            Sequence s = DOTween.Sequence();
-            s.Append(audioMixer.DOSetFloat(muteParameterName, -70.0f, muteFadeDuration));
-            s.AppendCallback(() => pauseState = PauseState.paused);
-            s.SetUpdate(true);
+            if (audioMixer)
+            {
+                pauseState = PauseState.pausing;
+                audioMixer.GetFloat(muteParameterName, out float val);
+                previousParameterValue = val;
 
-            pauseState = PauseState.pausing;
+                Sequence s = DOTween.Sequence();
+                s.Append(audioMixer.DOSetFloat(muteParameterName, -70.0f, muteFadeDuration));
+                s.AppendCallback(() => pauseState = PauseState.paused);
+                s.SetUpdate(true);
+            }
+            else
+            {
+                pauseState = PauseState.paused;
+            }
         }
 
         [ContextMenu("Unpause")]
@@ -65,12 +72,19 @@ namespace Fossil
             }
             lowerTimeBoundModifier.value = 1;
 
-            Sequence s = DOTween.Sequence();
-            s.Append(audioMixer.DOSetFloat(muteParameterName, previousParameterValue, muteFadeDuration));
-            s.AppendCallback(() => pauseState = PauseState.running);
-            s.SetUpdate(true);
+            if (audioMixer)
+            {
+                pauseState = PauseState.resuming;
 
-            pauseState = PauseState.resuming;
+                Sequence s = DOTween.Sequence();
+                s.Append(audioMixer.DOSetFloat(muteParameterName, previousParameterValue, muteFadeDuration));
+                s.AppendCallback(() => pauseState = PauseState.running);
+                s.SetUpdate(true);
+            }
+            else
+            {
+                pauseState = PauseState.running;
+            }
         }
 
         private void Update()
