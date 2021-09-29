@@ -26,6 +26,7 @@ namespace Fossil
             GlobalReferenceProvider.Register(typeof(PauseManager), this);
             GlobalReferenceProvider.Register(typeof(IPauseManager), this);
             lowerTimeBoundModifier = GetLowerTimeBoundModifier();
+            lowerTimeBoundModifier.value = 1;
         }
 
         [ContextMenu("Pause")]
