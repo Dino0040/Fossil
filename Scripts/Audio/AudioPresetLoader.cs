@@ -158,12 +158,13 @@ namespace Fossil
             hasPlayed = true;
         }
 
-        public void FadeOut(float duration, System.Action callback)
+        public Tween FadeOut(float duration, System.Action callback)
         {
             Sequence sequence = DOTween.Sequence();
             sequence.Append(source.DOFade(0.0f, duration)).AppendCallback(() => { source.Stop(); callback(); });
             sequence.SetUpdate(true);
             sequence.Play();
+            return sequence;
         }
 
         public void Stop()
