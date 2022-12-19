@@ -6,6 +6,18 @@ namespace Fossil
     {
         static Dictionary<System.Type, Object> references;
 
+        static Dictionary<System.Type, Object> References
+        {
+            get
+            {
+                if(references == null)
+                {
+                    references = new Dictionary<System.Type, Object>();
+                }
+                return references;
+            }
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Init()
         {
@@ -14,19 +26,29 @@ namespace Fossil
 
         public static void Register(System.Type type, Object newReference)
         {
-            if (references.TryGetValue(type, out Object existingReference))
+            if (References.TryGetValue(type, out Object existingReference))
             {
                 if (existingReference != null)
                 {
                     Debug.LogWarning("Overwriting active global reference of " + type + "!");
                 }
             }
-            references[type] = newReference;
+            References[type] = newReference;
+        }
+
+        public static void Register<T>(Object newReference)
+        {
+            Register(typeof(T), newReference);
+        }
+
+        public static void Register(Object newReference)
+        {
+            Register(newReference.GetType(), newReference);
         }
 
         public static bool TryGet<T>(out T a) where T : class
         {
-            if (references.TryGetValue(typeof(T), out Object reference))
+            if (References.TryGetValue(typeof(T), out Object reference))
             {
                 if (reference != null && reference is T t)
                 {

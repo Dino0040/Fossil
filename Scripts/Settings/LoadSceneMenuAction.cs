@@ -12,7 +12,7 @@ namespace Fossil
 
         public override void Run(Menu menu)
         {
-            GlobalReferenceProvider.Fill(ref sceneLoader);
+            GlobalReferenceProvider.Get(out sceneLoader);
 
             if (string.IsNullOrEmpty(transitionName))
             {

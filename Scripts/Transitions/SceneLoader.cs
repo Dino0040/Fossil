@@ -16,13 +16,13 @@ namespace Fossil
 
         public Transition defaultTransition;
         public NamedTransition[] transitions;
+        public bool transitionOnFirstLoad;
         Dictionary<string, Transition> transitionDictionary;
         bool transitioning;
-        public string defaultSceneName;
-        Scene? currentLoadedScene = null;
+        Scene currentLoadedScene;
 
-        public UnityEvent beforeSceneUnload;
-        public UnityEvent afterSceneLoad;
+        public UnityEvent beforeSceneSwitch;
+        public UnityEvent afterSceneSwitch;
 
         private void Awake()
         {
@@ -37,25 +37,17 @@ namespace Fossil
                 transitionDictionary.Add(namedTransition.name, namedTransition.transition);
             }
 
-            if (SceneManager.sceneCount == 1)
+            if (defaultTransition && transitionOnFirstLoad)
             {
-                LoadScene(defaultSceneName);
+                defaultTransition.EndTransition();
             }
-            else
-            {
-                for (int i = 0; i < SceneManager.sceneCount; i++)
-                {
-                    if (SceneManager.GetSceneAt(i) != gameObject.scene)
-                        currentLoadedScene = SceneManager.GetSceneAt(i);
-                }
-                SceneManager.SetActiveScene((Scene)currentLoadedScene);
-            }
+
+            currentLoadedScene = SceneManager.GetActiveScene();
         }
 
         public void LoadScene(string name, string transitionName)
         {
-            Transition transition;
-            if (!transitionDictionary.TryGetValue(transitionName, out transition))
+            if (!transitionDictionary.TryGetValue(transitionName, out Transition transition))
             {
                 transition = defaultTransition;
                 Debug.LogWarning("Transition " + transitionName + " does not exist!");
@@ -78,42 +70,41 @@ namespace Fossil
 
         public void ReloadScene()
         {
-            LoadScene(currentLoadedScene.Value.name);
+            LoadScene(currentLoadedScene.name);
         }
 
         public void ReloadScene(string transitionName)
         {
-            LoadScene(currentLoadedScene.Value.name, transitionName);
+            LoadScene(currentLoadedScene.name, transitionName);
         }
 
         public void ReloadScene(Transition transition)
         {
-            LoadScene(currentLoadedScene.Value.name, transition);
+            LoadScene(currentLoadedScene.name, transition);
         }
 
         IEnumerator LoadSceneRoutine(string name, Transition transition)
         {
             transitioning = true;
 
-            if (currentLoadedScene != null)
+            beforeSceneSwitch.Invoke();
+
+            Application.backgroundLoadingPriority = ThreadPriority.Low;
+            AsyncOperation loadOperation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Single);
+            loadOperation.allowSceneActivation = false;
+
+            if (transition != null)
             {
-                if (transition != null)
-                {
-                    yield return transition.StartTransition();
-                }
+                yield return transition.StartTransition();
             }
 
-            if (currentLoadedScene != null)
-            {
-                beforeSceneUnload.Invoke();
-                AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync((Scene)currentLoadedScene);
-                yield return unloadOperation;
-            }
-
-            AsyncOperation loadOperation = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
+            Application.backgroundLoadingPriority = ThreadPriority.High;
+            loadOperation.allowSceneActivation = true;
             yield return loadOperation;
+            Application.backgroundLoadingPriority = ThreadPriority.Normal;
+
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
-            afterSceneLoad.Invoke();
+            afterSceneSwitch.Invoke();
 
             if (currentLoadedScene != null)
             {
