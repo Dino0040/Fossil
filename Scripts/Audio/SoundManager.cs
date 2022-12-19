@@ -18,6 +18,11 @@ namespace Fossil
 
         public AudioPresetLoader PlaySound(AudioPresetProvider audioPreset)
         {
+            if (!audioPreset)
+            {
+				Debug.LogError("Audio Preset must not be null!");
+                return null;
+            }
             if (lastPlayedTime.TryGetValue(audioPreset, out float time))
             {
                 if (Time.unscaledTime - time < minSoundTimeDistance)
