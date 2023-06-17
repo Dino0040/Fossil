@@ -1,4 +1,4 @@
-﻿using NaughtyAttributes;
+using NaughtyAttributes;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,7 +27,6 @@ namespace Fossil
 
         AudioPreset templateInstance;
 
-        bool initialized = false;
         List<int> playlist;
 
         public void OnValidate()
@@ -63,13 +62,13 @@ namespace Fossil
             {
                 templateInstance = Instantiate(template.GetPreset());
             }
-            initialized = true;
         }
 
         int playlistPosition = -1;
+
         public override AudioPreset GetPreset()
         {
-            if (!initialized)
+            if (useSingleAudioPresetAsTemplate && !templateInstance)
             {
                 OnValidate();
             }
