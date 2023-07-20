@@ -1,4 +1,5 @@
-﻿using UnityEngine.Audio;
+﻿using UnityEngine;
+using UnityEngine.Audio;
 namespace Fossil
 {
     [System.Serializable]
@@ -10,12 +11,12 @@ namespace Fossil
         public float GetValue()
         {
             mixer.GetFloat(parameterName, out float f);
-            return f;
+            return Mathf.InverseLerp(-80, 0, f);
         }
 
         public void SetValue(float value)
         {
-            mixer.SetFloat(parameterName, value);
+            mixer.SetFloat(parameterName, Mathf.Lerp(-80, 0, value));
         }
     }
 }

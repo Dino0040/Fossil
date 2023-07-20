@@ -1,5 +1,6 @@
 {
     "name": "Fossil",
+    "rootNamespace": "",
     "references": [
         "NaughtyAttributes.Core",
         "Unity.InputSystem",

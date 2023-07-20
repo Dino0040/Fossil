@@ -94,14 +94,7 @@ namespace Fossil
             }
             if (source.isPlaying)
             {
-                if (panningSource == PanningSource.Screen && Application.isPlaying && currentPreset != null)
-                {
-                    source.panStereo = Mathf.Clamp((mainCamera.WorldToViewportPoint(transform.position).x * 2.0f - 1.0f) * currentPreset.panningStrength, -1, 1);
-                    if (currentPreset.panningStrength > 0.1f)
-                    {
-                        source.volume = Mathf.Lerp((1.0f - Vector2.Distance(mainCamera.transform.position, transform.position) / 25.0f) * currentPreset.volume, 1, 0);
-                    }
-                }
+                
             }
             else
             {
@@ -141,7 +134,9 @@ namespace Fossil
             source.volume = currentPreset.volume;
             if (panningSource == PanningSource.Screen)
             {
-                source.spatialBlend = 0;
+                source.spatialBlend = currentPreset.panningStrength;
+                source.rolloffMode = AudioRolloffMode.Linear;
+                source.maxDistance = 10.0f;
             }
             if (panningSource == PanningSource.Spatial)
             {

@@ -20,6 +20,12 @@ namespace Fossil
             inputAction.action.Enable();
         }
 
+        private void OnDestroy()
+        {
+            inputAction.action.started -= TogglePause;
+            inputAction.action.Disable();
+        }
+
         private void TogglePause(InputAction.CallbackContext _)
         {
             if (pauseManager.PauseState == PauseState.running && menu.GetCurrentMenuRoot() == null)

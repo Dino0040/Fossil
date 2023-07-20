@@ -14,6 +14,11 @@ namespace Fossil
         {
             GlobalReferenceProvider.Get(out sceneLoader);
 
+            if(GlobalReferenceProvider.TryGet(out IPauseManager pauseManager))
+            {
+                pauseManager.Unpause();
+            }
+
             if (string.IsNullOrEmpty(transitionName))
             {
                 menu.CloseMenu();
