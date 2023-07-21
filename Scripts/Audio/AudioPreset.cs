@@ -37,6 +37,10 @@ namespace Fossil
                 HideFlags.HideAndDontSave,
                 new System.Type[] { typeof(AudioSource), typeof(AudioPresetLoader) });
 
+            if(Camera.main){
+                g.transform.position = Camera.main.transform.position;
+            }
+
             AudioPresetLoader audioPresetLoader = g.GetComponent<AudioPresetLoader>();
             previews.Add(audioPresetLoader);
             audioPresetLoader.audioPreset = this;
